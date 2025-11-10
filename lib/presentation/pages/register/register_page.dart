@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import '../../../routes/app_routes.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage>
+class _RegisterPageState extends State<RegisterPage>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+  final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  final _cedulaCtrl = TextEditingController();
   bool _obscure = true;
   bool _loading = false;
 
@@ -25,6 +28,7 @@ class _LoginPageState extends State<LoginPage>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
+
     _animation = Tween<double>(
       begin: 0.96,
       end: 1.04,
@@ -34,12 +38,14 @@ class _LoginPageState extends State<LoginPage>
   @override
   void dispose() {
     _controller.dispose();
+    _nameCtrl.dispose();
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
+    _cedulaCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _login() async {
+  Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _loading = true);
@@ -47,16 +53,17 @@ class _LoginPageState extends State<LoginPage>
     await Future.delayed(const Duration(seconds: 2));
 
     if (!mounted) return;
+
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Inicio de sesión exitoso')));
+    ).showSnackBar(const SnackBar(content: Text('Registro exitoso')));
 
-    Navigator.pushReplacementNamed(context, '/home');
+    // Redirigir al login
+    Navigator.pushReplacementNamed(context, AppRoutes.login);
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Stack(
         children: [
@@ -87,13 +94,13 @@ class _LoginPageState extends State<LoginPage>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(
-                            Icons.lock_outline,
+                            Icons.person_add,
                             size: 70,
                             color: Colors.indigo,
                           ),
                           const SizedBox(height: 16),
                           const Text(
-                            'Bienvenido',
+                            'Registro',
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -101,7 +108,7 @@ class _LoginPageState extends State<LoginPage>
                           ),
                           const SizedBox(height: 8),
                           const Text(
-                            'Inicia sesión para continuar',
+                            'Crea tu cuenta para continuar',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.black54,
@@ -109,10 +116,24 @@ class _LoginPageState extends State<LoginPage>
                           ),
                           const SizedBox(height: 24),
                           TextFormField(
+                            controller: _nameCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Nombre completo',
+                              prefixIcon: Icon(Icons.person_outline),
+                              border: OutlineInputBorder(),
+                            ),
+                            validator:
+                                (v) =>
+                                    v == null || v.isEmpty
+                                        ? 'Ingrese su nombre'
+                                        : null,
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
                             controller: _emailCtrl,
                             keyboardType: TextInputType.emailAddress,
                             decoration: const InputDecoration(
-                              labelText: 'Correo electronico',
+                              labelText: 'Correo electrónico',
                               prefixIcon: Icon(Icons.email_outlined),
                               border: OutlineInputBorder(),
                             ),
@@ -146,11 +167,26 @@ class _LoginPageState extends State<LoginPage>
                                         ? 'Mínimo 6 caracteres'
                                         : null,
                           ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _cedulaCtrl,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              labelText: 'Cédula',
+                              prefixIcon: Icon(Icons.badge_outlined),
+                              border: OutlineInputBorder(),
+                            ),
+                            validator:
+                                (v) =>
+                                    v == null || v.isEmpty
+                                        ? 'Ingrese su cédula'
+                                        : null,
+                          ),
                           const SizedBox(height: 20),
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: _loading ? null : _login,
+                              onPressed: _loading ? null : _register,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.indigo,
                                 padding: const EdgeInsets.symmetric(
@@ -171,11 +207,10 @@ class _LoginPageState extends State<LoginPage>
                                         ),
                                       )
                                       : const Text(
-                                        'Iniciar sesión',
+                                        'Registrarse',
                                         style: TextStyle(
                                           fontSize: 16,
-                                          color:
-                                              Colors.white, // <- texto blanco
+                                          color: Colors.white,
                                         ),
                                       ),
                             ),
@@ -183,10 +218,13 @@ class _LoginPageState extends State<LoginPage>
                           const SizedBox(height: 16),
                           TextButton(
                             onPressed: () {
-                              Navigator.pushNamed(context, '/register');
+                              Navigator.pushReplacementNamed(
+                                context,
+                                AppRoutes.login,
+                              );
                             },
                             child: const Text(
-                              '¿No tienes cuenta? Regístrate',
+                              '¿Ya tienes cuenta? Inicia sesión',
                               style: TextStyle(color: Colors.indigo),
                             ),
                           ),
